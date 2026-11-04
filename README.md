@@ -1,3 +1,5 @@
+🔗 **App publicada:** https://xteban-sp.github.io/met-num-s13-simpson/
+
 # Integración numérica · Sesión 13
 
 Regla de Simpson 1/3 compuesta para estimar el consumo energético de un centro de datos, en web y en Python.
