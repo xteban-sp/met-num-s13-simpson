@@ -1,0 +1,1121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Simpson 1/3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=JetBrains+Mono:wght@400;500;700&family=Karla:wght@400;500;600;700&display=swap">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<style>
+/* ============================ TOKENS ============================ */
+:root{
+  --ink:#151A21; --ink-2:#465064; --ink-3:#6F7A8C;
+  --paper:#F6F7F4; --card:#FFFFFF; --card-2:#EFF1EC;
+  --line:#DCDFD6; --line-2:#C8CCC0;
+  --grid:rgba(21,26,33,.045);
+  --brand:#3B4A8C;            /* azul tinta */
+  --brand-soft:#E4E7F4;
+  --ok:#1C7A55; --ok-soft:#DDF0E6; --ok-line:#93CDB3;
+  --warn:#B4531A;
+  --m1:#3B4A8C; --m2:#B03A5B; --m3:#1C7A55; --m4:#B4791A; --m5:#2E7C93;
+  --side:#171C26; --side-ink:#E6E9EF; --side-mut:#8D97A8; --side-line:#28303E;
+  --shadow:0 1px 1px rgba(21,26,33,.04), 0 6px 18px rgba(21,26,33,.06);
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#E7EAF0; --ink-2:#A9B3C4; --ink-3:#7F8A9C;
+    --paper:#0E1219; --card:#151A22; --card-2:#1B212B;
+    --line:#28303C; --line-2:#333C4A;
+    --grid:rgba(231,234,240,.04);
+    --brand:#8D9BE0; --brand-soft:#1D2440;
+    --ok:#63CFA2; --ok-soft:#12301F; --ok-line:#2C6A4E;
+    --warn:#E08A4E;
+    --m1:#8D9BE0; --m2:#E27F9B; --m3:#63CFA2; --m4:#E0B45C; --m5:#6EBCD4;
+    --side:#0A0E14; --side-ink:#DDE2EA; --side-mut:#78839A; --side-line:#1D242F;
+    --shadow:0 1px 1px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E7EAF0; --ink-2:#A9B3C4; --ink-3:#7F8A9C;
+  --paper:#0E1219; --card:#151A22; --card-2:#1B212B;
+  --line:#28303C; --line-2:#333C4A;
+  --grid:rgba(231,234,240,.04);
+  --brand:#8D9BE0; --brand-soft:#1D2440;
+  --ok:#63CFA2; --ok-soft:#12301F; --ok-line:#2C6A4E;
+  --warn:#E08A4E;
+  --m1:#8D9BE0; --m2:#E27F9B; --m3:#63CFA2; --m4:#E0B45C; --m5:#6EBCD4;
+  --side:#0A0E14; --side-ink:#DDE2EA; --side-mut:#78839A; --side-line:#1D242F;
+  --shadow:0 1px 1px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; color:var(--ink); font-family:Karla,system-ui,sans-serif; font-size:16px; line-height:1.65;
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/26px 26px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/26px 26px,
+    var(--paper);
+}
+h1,h2,h3{font-family:"Bricolage Grotesque",Karla,sans-serif; font-weight:700; letter-spacing:-.015em; margin:0; text-wrap:balance}
+a{color:var(--brand)}
+
+/* ============================ SHELL ============================ */
+.app{display:grid; grid-template-columns:246px minmax(0,1fr) 392px; min-height:100vh}
+
+/* ---- barra lateral ---- */
+.side{
+  background:var(--side); color:var(--side-ink); padding:22px 16px; display:flex; flex-direction:column; gap:22px;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.brand{display:flex; flex-direction:column; gap:3px; padding:0 6px}
+.brand .mark{
+  width:34px; height:34px; border-radius:9px; display:grid; place-items:center; margin-bottom:7px;
+  background:linear-gradient(140deg,#3B4A8C,#2E7C93); color:#fff; font-family:"Bricolage Grotesque",sans-serif;
+  font-weight:700; font-size:17px;
+}
+.brand b{font-family:"Bricolage Grotesque",sans-serif; font-size:17px; letter-spacing:-.01em}
+.brand span{font-size:11.5px; color:var(--side-mut); letter-spacing:.05em; text-transform:uppercase}
+.navgrp{display:flex; flex-direction:column; gap:3px}
+.navgrp > p{
+  font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--side-mut);
+  margin:0 0 6px 8px; font-weight:700;
+}
+.nav{
+  display:flex; align-items:center; gap:10px; width:100%; text-align:left; cursor:pointer;
+  background:none; border:none; color:var(--side-mut); font-family:inherit; font-size:14.5px;
+  padding:8px 10px; border-radius:8px; line-height:1.3;
+}
+.nav:hover{background:#ffffff0d; color:var(--side-ink)}
+.nav[aria-current="true"]{background:#ffffff14; color:#fff; font-weight:600}
+.nav .ic{width:19px; text-align:center; font-size:13px; opacity:.9}
+.nav[aria-current="true"] .ic{color:#9FB0FF}
+.side-foot{margin-top:auto; padding:12px 8px 0; border-top:1px solid var(--side-line); font-size:12px; color:var(--side-mut)}
+.side-foot b{color:var(--side-ink); font-weight:600; display:block; font-size:12.5px}
+.side-foot .acerca{display:inline-block; margin-top:9px; color:var(--side-mut); opacity:.5;
+  font-size:11px; text-decoration:none; letter-spacing:.03em}
+.side-foot .acerca:hover{opacity:1; color:var(--side-ink); text-decoration:underline}
+.side-foot .acerca[aria-current="true"]{opacity:1; color:#9FB0FF}
+.uswitch{display:flex; gap:6px}
+.uchip{flex:1; text-align:center; padding:7px 4px; border-radius:8px; border:1px solid var(--side-line);
+  background:transparent; color:var(--side-mut); font-family:Karla,sans-serif; font-size:12px; font-weight:700; cursor:pointer}
+.uchip.on{background:#ffffff14; color:#fff; border-color:transparent}
+.uchip:hover{color:var(--side-ink)}
+.mtabla{border-collapse:collapse; width:auto; font-family:"JetBrains Mono",monospace; font-size:14px}
+.mtabla td{border-bottom:none}
+.mtabla td{padding:4px 9px; text-align:right}
+.mtabla td.bar{border-left:1.5px solid var(--ink-3); padding-left:13px}
+.mwrap{display:inline-block; align-self:flex-start; position:relative; padding:3px 13px; max-width:100%; overflow-x:auto; vertical-align:top}
+.mwrap::before,.mwrap::after{content:""; position:absolute; top:0; bottom:0; width:6px; border:1.5px solid var(--ink-3)}
+.mwrap::before{left:0; border-right:none; border-radius:3px 0 0 3px}
+.mwrap::after{right:0; border-left:none; border-radius:0 3px 3px 0}
+.u2row{display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-family:"JetBrains Mono",monospace; font-size:13.5px}
+.u2row input{width:66px; padding:6px 8px}
+.u2row input.b{width:76px}
+.clasif{display:inline-flex; align-items:center; gap:8px; font-family:Karla,sans-serif; font-weight:700;
+  padding:6px 14px; border-radius:999px; font-size:13px}
+.clasif.scd{background:var(--ok-soft); color:var(--ok)}
+.clasif.sci{background:var(--brand-soft); color:var(--brand)}
+.clasif.si{background:#F4DDE2; color:var(--m2)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .clasif.si{background:#3A1E24}}
+:root[data-theme="dark"] .clasif.si{background:#3A1E24}
+
+/* ---- centro ---- */
+.center{padding:40px 44px 80px; max-width:820px; width:100%; margin:0 auto; display:flex; flex-direction:column; gap:38px}
+.page-head{display:flex; flex-direction:column; gap:9px; padding-bottom:22px; border-bottom:1px solid var(--line)}
+.page-head .kicker{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--brand); font-weight:700}
+.page-head h1{font-size:clamp(24px,3.2vw,31px)}
+.page-head p{margin:0; color:var(--ink-2); max-width:62ch}
+
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow)}
+.card > h2{font-size:17.5px; padding:22px 24px 0; display:flex; align-items:center; gap:10px}
+.card > .body{padding:18px 24px 24px; display:flex; flex-direction:column; gap:20px}
+.sec-title{font-size:12px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3); font-weight:700; margin:0}
+
+/* ---- derecha ---- */
+.app.sinrail{grid-template-columns:246px minmax(0,1fr)}
+.rail{
+  border-left:1px solid var(--line); padding:26px 22px; display:flex; flex-direction:column; gap:16px;
+  position:sticky; top:0; height:100vh; overflow-y:auto; background:var(--card);
+}
+.rail h3{font-size:12px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3); font-weight:700}
+.panel{border:1px solid var(--line); border-radius:var(--r); padding:12px; background:var(--card)}
+canvas{width:100%; display:block}
+#fplot{height:250px} #cplot{height:250px}
+.legend{display:flex; flex-wrap:wrap; gap:9px 14px; font-size:12px; color:var(--ink-2); margin-top:9px}
+.legend span{display:flex; align-items:center; gap:6px}
+.swatch{width:13px; height:3px; border-radius:2px}
+.win{display:flex; flex-direction:column; gap:6px}
+.win-row{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:13px}
+.win-row .k{color:var(--ink-3)}
+.win-row .v{font-family:"JetBrains Mono",monospace; font-weight:500}
+.big{font-family:"JetBrains Mono",monospace; font-size:23px; font-weight:700; letter-spacing:-.02em}
+
+/* ---- formulario ---- */
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(138px,1fr)); gap:16px 18px}
+.f{display:flex; flex-direction:column; gap:5px}
+.f.span2{grid-column:span 2}
+.f label{font-size:11.5px; font-weight:700; color:var(--ink-3); letter-spacing:.04em}
+.f label i{font-style:normal; font-weight:400; color:var(--ink-3); opacity:.8}
+input,select{
+  font-family:"JetBrains Mono",monospace; font-size:14px; width:100%;
+  padding:9px 11px; border:1px solid var(--line-2); border-radius:8px;
+  background:var(--paper); color:var(--ink);
+}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--brand); outline-offset:1px}
+input.bad{border-color:var(--m2)}
+.btn{
+  font-family:Karla,sans-serif; font-size:14.5px; font-weight:700; cursor:pointer; padding:9px 17px;
+  border-radius:8px; border:1px solid var(--brand); background:var(--brand); color:#fff;
+}
+.btn.sec{background:transparent; color:var(--brand)}
+.btn.chip{
+  padding:5px 12px; font-size:12.5px; font-weight:600; border-radius:999px;
+  border:1px solid var(--line-2); background:var(--card); color:var(--ink-2);
+}
+.btn.chip:hover{border-color:var(--brand); color:var(--brand)}
+.row{display:flex; flex-wrap:wrap; gap:11px; align-items:center}
+.msg{font-size:14px; color:var(--ink-2); margin:0; max-width:64ch; line-height:1.6}
+.msg.err{color:var(--m2); font-weight:600}
+kbd,code{font-family:"JetBrains Mono",monospace; font-size:12.5px; background:var(--card-2); padding:1px 5px; border-radius:4px}
+
+/* ---- tablas ---- */
+.tw{overflow-x:auto; border:1px solid var(--line); border-radius:9px}
+table{border-collapse:collapse; width:100%; font-family:"JetBrains Mono",monospace; font-size:13px; font-variant-numeric:tabular-nums}
+th{background:var(--card-2); color:var(--ink-3); font-weight:700; font-size:11.5px; text-align:right;
+   padding:9px 11px; border-bottom:1px solid var(--line); white-space:nowrap}
+td{padding:9px 12px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap}
+tr:last-child td{border-bottom:none}
+th.l,td.l{text-align:left}
+tr.hit td{background:var(--ok-soft); color:var(--ok); font-weight:700}
+tr.hit td:first-child{box-shadow:inset 3px 0 0 var(--ok)}
+td.best{color:var(--ok); font-weight:700}
+.tag{font-family:Karla,sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+     border:1px solid var(--ok-line); color:var(--ok); border-radius:999px; padding:1px 7px; margin-left:7px}
+.tag.no{border-color:var(--m2); color:var(--m2); text-transform:none; letter-spacing:0; font-weight:600}
+.tag.ojo{border-color:var(--warn); color:var(--warn); text-transform:none; letter-spacing:0; font-weight:600}
+.dot{width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:7px; vertical-align:middle}
+
+details{border:1px solid var(--line); border-radius:9px; background:var(--card-2)}
+details+details{margin-top:9px}
+summary{cursor:pointer; padding:10px 14px; font-weight:700; font-size:14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+summary::-webkit-details-marker{display:none}
+summary .meta{font-family:"JetBrains Mono",monospace; font-size:12px; font-weight:400; color:var(--ink-3)}
+details .tw{margin:0 12px 12px; background:var(--card)}
+
+/* ---- fórmulas ---- */
+.formula{font-family:"JetBrains Mono",monospace; font-size:14px; background:var(--card-2);
+         border-left:3px solid var(--brand); padding:10px 14px; border-radius:0 8px 8px 0; overflow-x:auto}
+.cheat{display:grid; gap:26px}
+.cheat .card > .body{gap:10px}
+.pill{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+      padding:2px 9px; border-radius:999px; background:var(--brand-soft); color:var(--brand)}
+ul.tight{margin:0; padding-left:18px; color:var(--ink-2)}
+ul.tight li{margin:3px 0}
+
+[hidden]{display:none !important}
+.topbar{display:none}
+
+@media (max-width:1180px){
+  .app{grid-template-columns:230px minmax(0,1fr)}
+  .rail{grid-column:1/-1; position:static; height:auto; border-left:none; border-top:1px solid var(--line);
+        display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px}
+}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .side{position:static; height:auto; flex-direction:row; flex-wrap:wrap; align-items:center; gap:10px; padding:14px}
+  .side .navgrp{flex-direction:row; flex-wrap:wrap}
+  .side .navgrp > p, .side-foot{display:none}
+  .center{padding:22px 16px 40px}
+  .f.span2{grid-column:span 1}
+}
+
+/* paso numerado en las tarjetas */
+.step{
+  width:24px; height:24px; border-radius:7px; display:inline-grid; place-items:center; flex:none;
+  background:var(--brand-soft); color:var(--brand); font-size:13px; font-weight:700;
+  font-family:"JetBrains Mono",monospace;
+}
+.sep{height:1px; background:var(--line); margin:2px 0}
+.ayuda{border:none; background:none; padding:0}
+.ayuda summary{padding:0; font-size:13.5px; font-weight:600; color:var(--brand)}
+.ayuda .cuerpo{padding-top:10px; font-size:13.5px; color:var(--ink-2); line-height:1.8}
+.ayuda code{margin-right:2px}
+.hero-num{font-family:"JetBrains Mono",monospace}
+.msg.mini{font-size:13px; color:var(--ink-3)}
+.panel-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px}
+.btn.chip.xs{padding:3px 9px; font-size:11.5px}
+.btn.chip.on{border-color:var(--brand); color:var(--brand); background:var(--brand-soft); font-weight:700}
+.pasos{gap:6px; margin-top:10px}
+.pasos .btn.chip{padding:3px 9px; font-size:11.5px}
+.pasos .dot{width:7px; height:7px; margin-right:5px}
+.dato{display:flex; flex-wrap:wrap; gap:8px 22px; font-size:14px}
+.dato b{font-family:"JetBrains Mono",monospace}
+.badge{font-family:"JetBrains Mono",monospace; font-size:12px; padding:2px 8px; border-radius:999px;
+       border:1px solid var(--line-2); color:var(--ink-2)}
+.badge.re{border-color:var(--ok-line); color:var(--ok)}
+.badge.im{border-color:var(--m5); color:var(--m5)}
+#fplot{cursor:crosshair} #fplotBig{cursor:crosshair; height:420px}
+
+/* ====================== LABORATORIO U2 ====================== */
+.center{gap:30px}
+.page-head{margin-bottom:4px}
+.pila{display:flex; flex-direction:column; gap:30px}
+main > section{display:flex; flex-direction:column; gap:26px}
+main > section > .page-head{margin-bottom:0}
+.nav em{margin-left:auto; font-style:normal; font-size:10px; font-weight:700; letter-spacing:.06em;
+  color:var(--side-mut); border:1px solid var(--side-line); border-radius:999px; padding:0 6px}
+textarea{font-family:"JetBrains Mono",monospace; font-size:13.5px; width:100%; padding:9px 11px;
+  border:1px solid var(--line-2); border-radius:8px; background:var(--paper); color:var(--ink); resize:vertical}
+.chk{display:inline-flex; align-items:center; gap:7px; font-size:14px; font-weight:600; color:var(--ink-2); cursor:pointer}
+.chk input{width:auto; accent-color:var(--brand)}
+
+/* editor de la matriz */
+.mg{display:grid; gap:6px; align-items:center; max-width:100%; overflow-x:auto; padding-bottom:2px}
+.mg .hd{font-family:"JetBrains Mono",monospace; font-size:12px; color:var(--ink-3); text-align:center; font-weight:700}
+.mg .eq{text-align:center; color:var(--ink-3); font-family:"JetBrains Mono",monospace}
+.mg input{padding:7px 6px; text-align:center; min-width:0}
+.mg input.bcol{background:var(--brand-soft)}
+#sX0 input{width:76px; text-align:center; padding:7px 6px}
+
+/* filas de puntos */
+.ifilas{display:grid; grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) auto; gap:6px 10px; align-items:center; max-width:520px}
+.ifilas .hd{font-size:11.5px; font-weight:700; color:var(--ink-3); letter-spacing:.04em}
+.ifilas .ix{font-family:"JetBrains Mono",monospace; font-size:12.5px; color:var(--ink-3); text-align:right}
+.ifilas input[type=text]{padding:7px 9px}
+.ifilas label{display:flex; align-items:center; gap:5px; font-size:12.5px; color:var(--ink-3); cursor:pointer}
+.ifilas label input{width:auto; accent-color:var(--brand)}
+.ifilas .off{opacity:.45}
+
+/* matrices */
+.mats{display:flex; flex-wrap:wrap; gap:14px 26px; align-items:center}
+.mlab{display:flex; align-items:center; gap:9px; font-family:"JetBrains Mono",monospace; font-size:14px; max-width:100%}
+.mlab > span{white-space:nowrap; color:var(--ink-2); font-weight:700}
+.mtabla td.pv{color:var(--brand); font-weight:700; background:var(--brand-soft); border-radius:4px}
+.mtabla td.new{color:var(--ok); font-weight:700}
+.mtabla td.pend{color:var(--ink-3); opacity:.45}
+.mtabla td.cero{color:var(--ink-3)}
+
+/* líneas de cálculo */
+.lineas{font-family:"JetBrains Mono",monospace; font-size:13.5px; line-height:1.75; display:flex; flex-direction:column; gap:2px;
+  overflow-x:auto; padding:2px 0}
+.lineas > div{white-space:nowrap}
+.lineas .op{color:var(--brand); font-weight:700}
+.lineas .r{color:var(--ok); font-weight:700}
+.lineas .c{color:var(--ink-3)}
+.paso{display:flex; flex-direction:column; gap:10px; padding:14px 16px; border:1px solid var(--line); border-radius:9px; background:var(--card-2)}
+.paso > h4{margin:0; font-size:14px; color:var(--ink-2); font-family:Karla,sans-serif; font-weight:700}
+.res{display:flex; flex-wrap:wrap; gap:10px 14px}
+.res .v{font-family:"JetBrains Mono",monospace; font-size:16px; padding:8px 14px; border-radius:9px;
+  background:var(--ok-soft); color:var(--ok); font-weight:700; border:1px solid var(--ok-line)}
+.res .v small{font-weight:400; opacity:.85; font-size:12.5px}
+.ok{color:var(--ok); font-weight:700}
+.no{color:var(--m2); font-weight:700}
+.ojo{color:var(--warn); font-weight:700}
+.veredicto{display:flex; gap:10px; align-items:flex-start; padding:11px 14px; border-radius:9px; font-size:14.5px; line-height:1.55}
+.veredicto.si{background:var(--ok-soft); color:var(--ok)}
+.veredicto.nn{background:#F4DDE2; color:var(--m2)}
+.veredicto.av{background:var(--card-2); color:var(--warn); border:1px solid var(--line)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .veredicto.nn{background:#3A1E24}}
+:root[data-theme="dark"] .veredicto.nn{background:#3A1E24}
+.veredicto b{font-weight:700}
+td.dim{color:var(--ink-3)}
+th.sp, td.sp{border-left:1px solid var(--line-2)}
+tr.hit td.dim{color:var(--ok)}
+details.it summary{font-size:13.5px}
+details.it .lineas{padding:0 14px 12px}
+.sub-t{font-size:13.5px; color:var(--ink-3); font-weight:700; margin:4px 0 0; padding-left:9px; border-left:3px solid var(--line-2)}
+
+/* gráfica */
+.iplot{height:330px; cursor:crosshair}
+
+/* fórmulas y repaso */
+.ej{display:flex; flex-direction:column; gap:10px}
+.ej .enun{font-size:14.5px; color:var(--ink-2); margin:0}
+.ej ol, .ej ul{margin:0; padding-left:20px; color:var(--ink-2); font-size:14px}
+.ej table{width:auto}
+
+/* barra superior en pantallas angostas */
+@media (max-width:820px){
+  .app.sinrail{grid-template-columns:minmax(0,1fr)}
+  .side{display:none}
+  .topbar{display:flex; position:sticky; top:0; z-index:5; align-items:center; gap:10px; padding:10px 16px;
+    background:var(--side); color:var(--side-ink)}
+  .tb-brand{display:flex; align-items:center; gap:8px; white-space:nowrap}
+  .tb-brand .mark{width:26px; height:26px; border-radius:7px; display:grid; place-items:center;
+    background:linear-gradient(140deg,#3B4A8C,#2E7C93); color:#fff; font-size:13px}
+  .tb-brand b{font-family:"Bricolage Grotesque",sans-serif; font-size:15px}
+  .topbar select{flex:1; min-width:0; padding:7px 9px; background:var(--card); color:var(--ink)}
+  .topbar .btn.chip{flex:none}
+  .card > h2{padding:18px 16px 0}
+  .card > .body{padding:14px 16px 18px}
+  .iplot{height:260px}
+  .ifilas{grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) auto}
+}
+@media (max-width:420px){ .tb-brand b{display:none} }
+
+h2.grupo{font-size:19px; margin:10px 0 -8px; color:var(--ink-2)}
+.cplot{height:260px; width:100%; display:block}
+#in{min-width:0}
+</style>
+<div class="app sinrail">
+
+<aside class="side">
+  <div class="brand">
+    <div class="mark">⅓</div>
+    <b>Simpson 1/3</b>
+    <span>Unidad 3 · Sesión 13</span>
+  </div>
+
+  <div class="navgrp">
+    <p>Simpson 1/3 compuesto</p>
+    <button class="nav" data-view="int" data-sec="cDatos" onclick="ir('int','cDatos')"><span class="ic">①</span> Datos</button>
+    <button class="nav" data-view="int" data-sec="cMalla" onclick="ir('int','cMalla')"><span class="ic">▦</span> Malla y fórmula</button>
+    <button class="nav" data-view="int" data-sec="cGraf" onclick="ir('int','cGraf')"><span class="ic">◠</span> Gráfica</button>
+    <button class="nav" data-view="int" data-sec="cConv" onclick="ir('int','cConv')"><span class="ic">↘</span> Convergencia</button>
+    <button class="nav" data-view="int" data-sec="cCota" onclick="ir('int','cCota')"><span class="ic">ε</span> Cota del error</button>
+  </div>
+
+  <div class="navgrp">
+    <p>Tarea del curso</p>
+    <button class="nav" data-view="s13" onclick="ir('s13')"><span class="ic">⑬</span> Sesión 13 · energía del datacenter</button>
+    <button class="nav" data-view="formulas" onclick="ir('formulas')"><span class="ic">∑</span> Fórmulas</button>
+    <button class="nav" onclick="tema()"><span class="ic">◐</span> Claro / oscuro</button>
+  </div>
+
+  <div class="side-foot">
+    <b>Fernando Istaña Flores</b>
+    Ing. de Sistemas · UPeU<br>
+    Docente: J. Manrique Plasencia
+  </div>
+</aside>
+
+<div class="topbar">
+  <div class="tb-brand"><span class="mark">⅓</span><b>Simpson 1/3</b></div>
+  <select id="tbsel" aria-label="Ir a" onchange="const [v,s]=this.value.split(':'); ir(v,s||undefined)">
+    <option value="int:cDatos">Simpson 1/3 compuesto</option>
+    <option value="int:cConv">Convergencia</option>
+    <option value="int:cCota">Cota del error</option>
+    <option value="s13:">Sesión 13 · energía del datacenter</option>
+    <option value="formulas:">Fórmulas</option>
+  </select>
+  <button class="btn chip" onclick="tema()" aria-label="Claro u oscuro">☾</button>
+</div>
+
+<main class="center">
+
+  <section id="v-int" hidden>
+    <div class="page-head">
+      <span class="kicker">Herramienta principal · Unidad 3 · Sesión 13</span>
+      <h1>Regla de Simpson 1/3 compuesta</h1>
+      <p>Escribe la función, el intervalo y un número <b>par</b> de subintervalos. La tabla con los coeficientes 1, 4, 2, …, 4, 1, la fórmula con los números, las parábolas, la convergencia y la cota del error se rehacen mientras escribes.</p>
+    </div>
+
+    <div class="card" id="cDatos">
+      <h2><span class="step">1</span> Los datos</h2>
+      <div class="body">
+        <div class="row" id="ejemplos"></div>
+        <div class="grid">
+          <div class="f span2"><label for="fx">f(t) <i>· variable t o x; seno y coseno en radianes</i></label>
+            <input id="fx" type="text" spellcheck="false" value="10 + 5*t*sin(pi*t/6) + exp(0.2*t)" oninput="vivo()"></div>
+          <div class="f"><label for="ia">a</label><input id="ia" type="text" inputmode="decimal" value="0" oninput="vivo()"></div>
+          <div class="f"><label for="ib">b</label><input id="ib" type="text" inputmode="decimal" value="6" oninput="vivo()"></div>
+          <div class="f"><label for="in">n subintervalos <i>· par</i></label>
+            <div class="row" style="gap:6px; flex-wrap:nowrap">
+              <button class="btn chip" onclick="pasoN(-2)" aria-label="Menos subintervalos">−</button>
+              <input id="in" type="text" inputmode="numeric" value="6" style="text-align:center" oninput="vivo()">
+              <button class="btn chip" onclick="pasoN(2)" aria-label="Más subintervalos">+</button>
+            </div></div>
+          <div class="f"><label for="ius">Unidad del resultado</label><input id="ius" type="text" value="kWh" oninput="vivo()"></div>
+          <div class="f span2"><label for="iex">Valor exacto <i>· opcional: número o expresión; vacío = referencia numérica</i></label>
+            <input id="iex" type="text" spellcheck="false" value="60 + 180/pi + (exp(1.2) - 1)/0.2" oninput="vivo()"></div>
+        </div>
+        <p class="msg mini" id="aviso"></p>
+      </div>
+    </div>
+
+    <div class="card" id="cMalla">
+      <h2><span class="step">2</span> Ancho de paso, tabla y fórmula</h2>
+      <div class="body" id="oMalla"></div>
+    </div>
+
+    <div class="card" id="cGraf">
+      <h2><span class="step">3</span> La gráfica</h2>
+      <div class="body">
+        <canvas id="plot" class="iplot" aria-label="Función y parábolas de Simpson"></canvas>
+        <div class="legend" id="leyenda"></div>
+      </div>
+    </div>
+
+    <div class="card" id="cConv">
+      <h2><span class="step">4</span> Análisis de convergencia</h2>
+      <div class="body">
+        <div class="grid">
+          <div class="f span2"><label for="ins">Valores de n <i>· separados por coma o espacio</i></label>
+            <input id="ins" type="text" spellcheck="false" value="2, 4, 6, 12, 24" oninput="vivo()"></div>
+        </div>
+        <div id="oConv"></div>
+        <canvas id="plotc" class="cplot" aria-label="Error contra n en escala logarítmica"></canvas>
+      </div>
+    </div>
+
+    <div class="card" id="cCota">
+      <h2><span class="step">5</span> Cota del error y n necesario</h2>
+      <div class="body">
+        <div class="grid">
+          <div class="f span2"><label for="id4">f⁽⁴⁾(t) <i>· vacío = derivada numérica</i></label>
+            <input id="id4" type="text" spellcheck="false" placeholder="5*((pi/6)^4*t*sin(pi*t/6) - 4*(pi/6)^3*cos(pi*t/6)) + 0.0016*exp(0.2*t)" oninput="vivo()"></div>
+          <div class="f"><label for="iM">M dado <i>· opcional, el del enunciado</i></label><input id="iM" type="text" value="0.45" oninput="vivo()"></div>
+          <div class="f"><label for="itol">Tolerancia deseada</label><input id="itol" type="text" value="0.01" oninput="vivo()"></div>
+        </div>
+        <div id="oCota"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-s13" hidden>
+    <div class="page-head">
+      <span class="kicker">Guía de aprendizaje autónomo · Sesión 13</span>
+      <h1>Energía consumida por un centro de datos</h1>
+      <p>Consumo total de los servidores durante 6 horas de carga crítica, con Simpson 1/3 compuesto.</p>
+    </div>
+    <div id="s13body" class="pila"></div>
+  </section>
+
+  <section id="v-formulas" hidden>
+    <div class="page-head">
+      <span class="kicker">Repaso · Unidad 3</span>
+      <h1>Fórmulas</h1>
+      <p>Lo que hay que saber escribir a mano para Simpson 1/3 compuesto.</p>
+    </div>
+    <div id="formBody" class="pila"></div>
+  </section>
+</main>
+</div>
+<script>
+const FN1 = {
+  sin:Math.sin, cos:Math.cos, tan:Math.tan, asin:Math.asin, acos:Math.acos, atan:Math.atan,
+  sinh:Math.sinh, cosh:Math.cosh, tanh:Math.tanh, asinh:Math.asinh, acosh:Math.acosh, atanh:Math.atanh,
+  exp:Math.exp, ln:Math.log, log:Math.log10, log10:Math.log10, log2:Math.log2,
+  sqrt:Math.sqrt, cbrt:Math.cbrt, abs:Math.abs, sign:Math.sign,
+  floor:Math.floor, ceil:Math.ceil, round:Math.round,
+  sec:x=>1/Math.cos(x), csc:x=>1/Math.sin(x), cot:x=>1/Math.tan(x),
+  // alias en español y notaciones alternativas que suelen aparecer en los enunciados
+  sen:Math.sin, tg:Math.tan, ctg:x=>1/Math.tan(x), cotg:x=>1/Math.tan(x),
+  arcsen:Math.asin, arcsin:Math.asin, arccos:Math.acos, arctan:Math.atan, arctg:Math.atan,
+  senh:Math.sinh, tgh:Math.tanh, raiz:Math.sqrt, raizc:Math.cbrt,
+  ln1p:Math.log1p, expm1:Math.expm1,
+};
+const FN2 = { pow:Math.pow, atan2:Math.atan2, max:Math.max, min:Math.min,
+              logb:(x,b)=>Math.log(x)/Math.log(b) };
+const CONST = { pi:Math.PI, "π":Math.PI, e:Math.E, tau:2*Math.PI, phi:(1+Math.sqrt(5))/2 };
+const OPS = {
+  "+":{p:1,a:"i",f:(a,b)=>a+b}, "-":{p:1,a:"i",f:(a,b)=>a-b},
+  "*":{p:2,a:"i",f:(a,b)=>a*b}, "/":{p:2,a:"i",f:(a,b)=>a/b},
+  "%":{p:2,a:"i",f:(a,b)=>a%b}, "^":{p:4,a:"d",f:Math.pow},
+  "u-":{p:3,a:"d",u:true,f:a=>-a}, "u+":{p:3,a:"d",u:true,f:a=>a},
+};
+
+function tokenizar(txt){
+  let s = txt.replace(/\s+/g,"")
+             .replace(/[−–—]/g,"-").replace(/[×·]/g,"*").replace(/÷/g,"/")
+             .replace(/²/g,"^2").replace(/³/g,"^3").replace(/⁴/g,"^4")
+             .replace(/\*\*/g,"^");
+  // la coma es separador de argumentos solo si hay funciones de dos argumentos;
+  // en cualquier otro caso 0,5 se entiende como decimal
+  if(!/(logb|pow|atan2|max|min)\(/i.test(s)) s = s.replace(/(\d),(\d)/g, "$1.$2");
+  // barras de valor absoluto |x| -> abs(x)
+  let abierto = false;
+  s = s.replace(/\|/g, () => (abierto = !abierto) ? "abs(" : ")");
+  if(abierto) throw new Error("Faltó cerrar una barra |…| de valor absoluto.");
+
+  const tk = [];
+  let i = 0;
+  const esNum = c => /[0-9.]/.test(c);
+  const esAlfa = c => /[a-zA-Zπ_]/.test(c);
+  while(i < s.length){
+    const c = s[i];
+    if(esNum(c)){
+      let j = i;
+      while(j < s.length && esNum(s[j])) j++;
+      if(s[j] === "e" && /[0-9+-]/.test(s[j+1]||"")){         // notación 1e-6
+        j++; if(/[+-]/.test(s[j])) j++;
+        while(j < s.length && /[0-9]/.test(s[j])) j++;
+      }
+      const v = parseFloat(s.slice(i,j));
+      if(Number.isNaN(v)) throw new Error(`Número inválido cerca de «${s.slice(i,j+3)}».`);
+      tk.push({t:"num", v}); i = j; continue;
+    }
+    if(esAlfa(c)){
+      let j = i; while(j < s.length && (esAlfa(s[j]) || /[0-9]/.test(s[j]))) j++;
+      const nom = s.slice(i,j).toLowerCase();
+      if(nom === "x")            tk.push({t:"var"});
+      else if(nom in CONST)      tk.push({t:"num", v:CONST[nom]});
+      else if(nom in FN1 || nom in FN2) tk.push({t:"fun", v:nom});
+      else throw new Error(`No conozco «${nom}». Usa x, números o funciones como sin, exp, ln, sqrt…`);
+      i = j; continue;
+    }
+    if(c === "(" || c === ")" ){ tk.push({t:c}); i++; continue; }
+    if(c === ";" || c === ","){ tk.push({t:","}); i++; continue; }
+    if(c in OPS){ tk.push({t:"op", v:c}); i++; continue; }
+    throw new Error(`Carácter no permitido: «${c}».`);
+  }
+
+  // multiplicación implícita y signos unarios
+  const out = [];
+  for(let k=0;k<tk.length;k++){
+    const a = tk[k], prev = out[out.length-1];
+    if(a.t === "op" && (a.v === "-" || a.v === "+")){
+      const unario = !prev || prev.t === "op" || prev.t === "(" || prev.t === ",";
+      out.push(unario ? {t:"op", v:"u"+a.v} : a);
+      continue;
+    }
+    const cierraValor = prev && (prev.t==="num" || prev.t==="var" || prev.t===")");
+    const abreValor   = a.t==="num" || a.t==="var" || a.t==="fun" || a.t==="(";
+    if(cierraValor && abreValor) out.push({t:"op", v:"*"});   // 2x, 3(x+1), (x+1)(x-1)
+    out.push(a);
+  }
+  return out;
+}
+
+function compilar(txt){
+  if(!txt || !txt.trim()) return null;
+  const tk = tokenizar(txt);
+  const salida = [], pila = [];
+  for(const t of tk){
+    if(t.t === "num" || t.t === "var") salida.push(t);
+    else if(t.t === "fun") pila.push(t);
+    else if(t.t === ",") { while(pila.length && pila.at(-1).t !== "(") salida.push(pila.pop()); }
+    else if(t.t === "op"){
+      const o = OPS[t.v];
+      while(!o.u && pila.length){   // un operador unario prefijo nunca saca nada de la pila
+        const top = pila.at(-1);
+        if(top.t === "op" && (OPS[top.v].p > o.p || (OPS[top.v].p === o.p && o.a === "i"))) salida.push(pila.pop());
+        else break;
+      }
+      pila.push(t);
+    }
+    else if(t.t === "(") pila.push(t);
+    else if(t.t === ")"){
+      while(pila.length && pila.at(-1).t !== "(") salida.push(pila.pop());
+      if(!pila.length) throw new Error("Hay un paréntesis de cierre de más.");
+      pila.pop();
+      if(pila.length && pila.at(-1).t === "fun") salida.push(pila.pop());
+    }
+  }
+  while(pila.length){
+    const t = pila.pop();
+    if(t.t === "(") throw new Error("Falta cerrar un paréntesis.");
+    salida.push(t);
+  }
+
+  // La RPN se convierte UNA vez en un árbol de funciones anidadas. Así cada
+  // evaluación es una cadena de llamadas directas, sin recorrer el arreglo ni
+  // crear una pila nueva: es la parte más caliente del programa, porque los
+  // métodos llaman a f(x) miles de veces.
+  const nodos = [];
+  for(const t of salida){
+    if(t.t === "num"){ const v = t.v; nodos.push(() => v); }
+    else if(t.t === "var") nodos.push(x => x);
+    else if(t.t === "op"){
+      const o = OPS[t.v], op = o.f;
+      if(o.u){ const a = nodos.pop(); nodos.push(x => op(a(x))); }
+      else { const b = nodos.pop(), a = nodos.pop(); nodos.push(x => op(a(x), b(x))); }
+    }
+    else if(t.t === "fun"){
+      if(t.v in FN2 && nodos.length >= 2 && !(t.v in FN1)){
+        const fn = FN2[t.v], b = nodos.pop(), a = nodos.pop(); nodos.push(x => fn(a(x), b(x)));
+      } else {
+        const fn = FN1[t.v], a = nodos.pop(); nodos.push(x => fn(a(x)));
+      }
+    }
+  }
+  const f = nodos.pop();
+  if(typeof f !== "function") throw new Error("La expresión está incompleta.");
+  const prueba = f(1.3);
+  if(typeof prueba !== "number") throw new Error("La expresión no devuelve un número.");
+  return f;
+}
+
+
+/* ==========================================================================
+   NÚCLEO: formato de números, lectura de casillas, navegación y tema
+   ========================================================================== */
+const $ = id => document.getElementById(id);
+const SUBS = "₀₁₂₃₄₅₆₇₈₉";
+const SUPS = {"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹",
+              "+":"⁺","-":"⁻","−":"⁻","(":"⁽",")":"⁾","k":"ᵏ","n":"ⁿ"};
+const sub = n => String(n).split("").map(c => /\d/.test(c) ? SUBS[+c] : c).join("");
+const sup = s => String(s).split("").map(c => SUPS[c] ?? c).join("");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const FACT = n => { let r = 1; for(let i = 2; i <= n; i++) r *= i; return r; };
+
+/* Fracción a partir de un double (fracciones continuas). Solo acepta la fracción si
+   reproduce el número casi al último bit: así 0.75 → 3/4 pero √2 sigue en decimales. */
+function aFrac(v, maxDen = 1e6){
+  if(!isFinite(v)) return null;
+  const tol = 5e-13 * Math.max(1, Math.abs(v));
+  if(Math.abs(v - Math.round(v)) < tol) return [Math.round(v), 1];
+  let h0 = 0, h1 = 1, k0 = 1, k1 = 0, x = v;
+  for(let i = 0; i < 40; i++){
+    const a = Math.floor(x);
+    const h2 = a * h1 + h0, k2 = a * k1 + k0;
+    if(k2 > maxDen) break;
+    h0 = h1; h1 = h2; k0 = k1; k1 = k2;
+    if(Math.abs(v - h1 / k1) <= tol) return [h1, k1];
+    const r = x - a;
+    if(r < 1e-15) break;
+    x = 1 / r;
+  }
+  return null;
+}
+const menos = s => s.replace(/-/g, "−");
+
+/* decimales: recorta ceros; los muy chicos van en notación científica */
+function dec(v, d = MODO.dec){
+  if(v === 0) return "0";
+  const a = Math.abs(v);
+  if(a < Math.pow(10, -(d - 1)) || a >= 1e12){
+    const [m, e] = v.toExponential(Math.max(2, d - 2)).split("e");
+    return menos(m.replace(/0+$/, "").replace(/\.$/, "")) + "×10" + sup(String(+e));
+  }
+  let s = v.toFixed(d);
+  if(s.includes(".")) s = s.replace(/0+$/, "").replace(/\.$/, "");
+  if(s === "-0") s = "0";
+  return menos(s);
+}
+/* decimales fijos (tablas de iteraciones) */
+function fx(v, d = MODO.dec){
+  if(!isFinite(v)) return v > 0 ? "∞" : (v < 0 ? "−∞" : "—");
+  let s = v.toFixed(d);
+  if(/^-0\.?0*$/.test(s)) s = s.slice(1);
+  return menos(s);
+}
+const MODO = {dec: 6};
+/* formato general: fracción exacta si se pidió y existe, si no decimales */
+function fmt(v, frac = false){
+  if(v === undefined || v === null || Number.isNaN(v)) return "—";
+  if(!isFinite(v)) return v > 0 ? "∞" : "−∞";
+  if(Math.abs(v) < 1e-12) return "0";
+  if(frac){ const f = aFrac(v); if(f) return menos(f[1] === 1 ? String(f[0]) : `${f[0]}/${f[1]}`); }
+  return dec(v);
+}
+/* número entre paréntesis si es negativo (o fracción, para que no se lea mal al multiplicar) */
+function par(v, frac = false){
+  const s = fmt(v, frac);
+  return (v < 0 || s.includes("/") || s.includes("×")) && s !== "0" ? `(${s})` : s;
+}
+/* resultado: fracción ≈ decimal */
+function fmtR(v, frac = false){
+  const a = fmt(v, frac);
+  return a.includes("/") ? `${a} ≈ ${dec(v)}` : a;
+}
+
+/* lee una casilla: número, fracción o expresión constante */
+function num(txt){
+  txt = String(txt ?? "").trim();
+  if(!txt) return NaN;
+  if(/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(txt)) return +txt;
+  try{
+    const f = compilar(txt), v = f(0.37);
+    return typeof v === "number" && v === f(1.91) ? v : NaN;   // tiene que ser constante
+  } catch(e){ return NaN; }
+}
+/* lista de números: "50; 70", "50 70", "50, 70". La coma separa; el punto es el decimal. */
+function lista(txt){
+  return String(txt ?? "").split(/[;\s,]+/).map(s => s.trim()).filter(Boolean).map(num);
+}
+function fnDe(txt){
+  txt = String(txt ?? "").trim();
+  if(!txt) return null;
+  try{ const f = compilar(txt); return f; } catch(e){ return {error: e.message}; }
+}
+const todosEnteros = vs => vs.every(v => isFinite(v) && Math.abs(v - Math.round(v)) < 1e-12);
+
+/* --------------------- matrices como HTML --------------------- */
+/* opts.bar: índice de columna antes de la cual va la barra de la aumentada
+   opts.cls(i, j): clase extra de la casilla · opts.txt(i, j, v): texto propio */
+function matHTML(M, opts = {}){
+  const frac = !!opts.frac;
+  let h = `<div class="mwrap"><table class="mtabla">`;
+  M.forEach((fila, i) => {
+    h += "<tr>";
+    fila.forEach((v, j) => {
+      const c = [opts.bar === j ? "bar" : "", opts.cls ? opts.cls(i, j, v) : ""].filter(Boolean).join(" ");
+      const t = opts.txt ? opts.txt(i, j, v) : fmt(v, frac);
+      h += `<td${c ? ` class="${c}"` : ""}>${t}</td>`;
+    });
+    h += "</tr>";
+  });
+  return h + "</table></div>";
+}
+const mlab = (nombre, html) => `<div class="mlab"><span>${nombre}</span>${html}</div>`;
+const vecCol = v => v.map(x => [x]);
+
+/* --------------------- polinomios (coeficientes de menor a mayor) --------------------- */
+function pMul(p, q){ const r = new Array(p.length + q.length - 1).fill(0);
+  p.forEach((a, i) => q.forEach((b, j) => r[i + j] += a * b)); return r; }
+function pAdd(p, q){ const r = new Array(Math.max(p.length, q.length)).fill(0);
+  p.forEach((a, i) => r[i] += a); q.forEach((b, i) => r[i] += b); return r; }
+const pScale = (p, k) => p.map(a => a * k);
+const pEval = (p, x) => p.reduceRight((acc, a) => acc * x + a, 0);
+function pTexto(c, frac = false, v = "x"){
+  const partes = [];
+  for(let g = c.length - 1; g >= 0; g--){
+    let a = c[g];
+    const escala = Math.max(...c.map(Math.abs), 1);
+    if(Math.abs(a) < 1e-12 * escala) continue;
+    const neg = a < 0; a = Math.abs(a);
+    let s = fmt(a, frac);
+    const pot = g === 0 ? "" : (g === 1 ? v : v + sup(g));
+    if(g > 0 && s === "1") s = "";
+    const term = g === 0 ? s : (s ? (s.includes("/") || s.includes("×") ? `(${s})` : s) + pot : pot);
+    partes.push((partes.length ? (neg ? " − " : " + ") : (neg ? "−" : "")) + term);
+  }
+  return partes.length ? partes.join("") : "0";
+}
+/* (x − a) con el signo bien puesto */
+function factor(v, a, frac = false){
+  if(Math.abs(a) < 1e-15) return v;
+  return a < 0 ? `(${v} + ${fmt(-a, frac)})` : `(${v} − ${fmt(a, frac)})`;
+}
+
+/* --------------------- navegación --------------------- */
+let VISTA = null;
+function ir(v, m){
+  VISTA = v;
+  document.querySelectorAll("main > section").forEach(s => s.hidden = (s.id !== "v-" + v));
+  if(v === "sis" && m) sMetodo(m, true);
+  if(v === "int" && m) iMetodo(m, true);
+  const mAct = v === "sis" ? S.m : (v === "int" ? I.m : "");
+  document.querySelectorAll(".nav[data-view]").forEach(b =>
+    b.setAttribute("aria-current", String(b.dataset.view === v && (!b.dataset.m || b.dataset.m === mAct))));
+  const sel = $("tbsel"); if(sel) sel.value = v + ":" + (mAct || "");
+  if(v === "sis") sCalc();
+  if(v === "int") iCalc();
+  if(v === "repaso" && !$("repasoBody").innerHTML.trim()) pintarRepaso();
+  if(v === "formulas" && !$("formBody").innerHTML.trim()) pintarFormulas();
+  window.scrollTo({top: 0});
+}
+
+function tema(){
+  const actual = document.documentElement.getAttribute("data-theme");
+  const oscuroSistema = matchMedia("(prefers-color-scheme: dark)").matches;
+  const nuevo = actual ? (actual === "dark" ? "light" : "dark") : (oscuroSistema ? "light" : "dark");
+  document.documentElement.setAttribute("data-theme", nuevo);
+  try{ localStorage.setItem("u2tema", nuevo); }catch(e){}
+  requestAnimationFrame(() => { if(VISTA === "int") iGraficar(); });
+}
+try{ const t = localStorage.getItem("u2tema"); if(t) document.documentElement.setAttribute("data-theme", t); }catch(e){}
+
+/* botones "ver como" */
+function verComoHTML(estado, fn){
+  return `<span class="msg mini" style="margin:0">Ver como</span>
+    <button class="btn chip xs${estado.frac ? " on" : ""}" onclick="${fn}(true)">fracciones</button>
+    <button class="btn chip xs${estado.frac ? "" : " on"}" onclick="${fn}(false)">decimales</button>
+    <span class="msg mini" style="margin:0 0 0 8px">decimales</span>
+    <select style="width:auto; padding:3px 8px" onchange="MODO.dec=+this.value; ${fn}(null)" aria-label="Cantidad de decimales">
+      ${[4,5,6,8,10].map(d => `<option${d === MODO.dec ? " selected" : ""}>${d}</option>`).join("")}
+    </select>`;
+}
+const debounce = (fn, ms = 140) => { let t; return () => { clearTimeout(t); t = setTimeout(fn, ms); }; };
+
+
+/* ==========================================================================
+   INTEGRACIÓN NUMÉRICA · SIMPSON 1/3 COMPUESTO (Sesión 13)
+   ========================================================================== */
+const P4_S13 = "5*((pi/6)^4*t*sin(pi*t/6) - 4*(pi/6)^3*cos(pi*t/6)) + 0.0016*exp(0.2*t)";
+const EJ = [
+  {n:"S13 · energía del datacenter", f:"10 + 5*t*sin(pi*t/6) + exp(0.2*t)", a:"0", b:"6", N:"6", u:"kWh", ex:"60 + 180/pi + (exp(1.2) - 1)/0.2", d4:P4_S13, M:"0.45"},
+  {n:"S12 · tráfico de red", f:"10 + 5*sin(pi*t/4) + exp(0.15*t)", a:"0", b:"12", N:"4", u:"Mb", ex:"120 + 40/pi + (exp(1.8) - 1)/0.15", d4:"5*(pi/4)^4*sin(pi*t/4) + 0.15^4*exp(0.15*t)", M:""},
+  {n:"∫₀¹ e^(−x²) dx", f:"exp(-x^2)", a:"0", b:"1", N:"4", u:"", ex:"", d4:"(16x^4 - 48x^2 + 12)*exp(-x^2)", M:""},
+  {n:"∫₀^π sen x dx = 2", f:"sin(x)", a:"0", b:"pi", N:"6", u:"", ex:"2", d4:"sin(x)", M:""},
+];
+const D = {};
+const vivo = debounce(() => calc(), 140);
+
+/* coeficientes 1, 4, 2, 4, …, 2, 4, 1 (el «vector» de la regla) */
+const coefSimpson = n => [...Array(n + 1)].map((_, i) => i === 0 || i === n ? 1 : (i % 2 ? 4 : 2));
+function simpson(f, a, b, n){
+  if(n % 2) throw new Error("n debe ser par");
+  const h = (b - a) / n, c = coefSimpson(n);
+  let s = 0; for(let i = 0; i <= n; i++) s += c[i] * f(a + i * h);
+  return s * h / 3;
+}
+function referencia(f, a, b){ return simpson(f, a, b, 20000); }
+function deriv4(f, t, a, b){
+  const h = 2e-2 * Math.max(1, Math.abs(b - a) / 6);
+  const x = Math.min(Math.max(t, a + 2 * h), b - 2 * h);
+  return (f(x + 2 * h) - 4 * f(x + h) + 6 * f(x) - 4 * f(x - h) + f(x - 2 * h)) / Math.pow(h, 4);
+}
+const compilarT = txt => compilar(String(txt).replace(/\bt\b/g, "x"));
+function pasoN(d){ let v = (Math.round(num($("in").value)) || 6) + d; if(v % 2) v += d > 0 ? 1 : -1; $("in").value = Math.max(2, v); calc(); }
+function ejemplo(k){
+  const e = EJ[k];
+  $("fx").value = e.f; $("ia").value = e.a; $("ib").value = e.b; $("in").value = e.N; $("ius").value = e.u;
+  $("iex").value = e.ex; $("id4").value = e.d4; $("iM").value = e.M;
+  ir("int", "cDatos");
+}
+
+function leer(){
+  let f = null, err = "";
+  try{ f = compilarT($("fx").value); } catch(e){ err = e.message; }
+  $("fx").classList.toggle("bad", !f);
+  const a = num($("ia").value), b = num($("ib").value), n = Math.round(num($("in").value));
+  $("ia").classList.toggle("bad", !isFinite(a)); $("ib").classList.toggle("bad", !isFinite(b));
+  $("in").classList.toggle("bad", !(n >= 2 && n <= 100000 && n % 2 === 0));
+  const exTxt = $("iex").value.trim(), ex = exTxt ? num(exTxt) : NaN;
+  $("iex").classList.toggle("bad", !!exTxt && !isFinite(ex));
+  return {f, err, a, b, n, u: $("ius").value.trim(), ex, exDado: !!exTxt && isFinite(ex)};
+}
+const U = s => D.u ? s + " " + D.u : s;
+
+function calc(){
+  if(VISTA !== "int") return;
+  const d = leer(); Object.assign(D, d);
+  let falla = d.err ? esc(d.err) : (!(d.b > d.a) ? "b debe ser mayor que a." : "");
+  if(!falla && isFinite(d.n) && d.n % 2) falla = `n = ${d.n} es impar: Simpson 1/3 necesita un número <b>par</b> de subintervalos (las parábolas toman los puntos de dos en dos). Usa ${d.n - 1 || 2} o ${d.n + 1}.`;
+  if(!falla && !(d.f && isFinite(d.a) && isFinite(d.b) && d.n >= 2 && d.n <= 100000)) falla = "Revisa los datos marcados en rojo.";
+  if(falla){
+    $("aviso").innerHTML = `<span class="no">${falla}</span>`;
+    ["oMalla", "oConv", "oCota"].forEach(id => $(id).innerHTML = ""); D.ts = null; graficar(); return;
+  }
+  const {f, a, b, n} = d, h = (b - a) / n, c = coefSimpson(n);
+  D.ref = d.exDado ? d.ex : referencia(f, a, b);
+  $("aviso").innerHTML = d.exDado ? `Valor exacto: ${fx(D.ref)}` : `Sin valor exacto: se compara contra una referencia numérica (Simpson con n = 20 000) = ${fx(D.ref)}`;
+
+  // ---------- tabla y fórmula ----------
+  const ts = [...Array(n + 1)].map((_, i) => a + i * h), ys = ts.map(f);
+  let hm = lineasHTML([`h = (b − a) / n = (${fmt(b)} − ${par(a)}) / ${n} = <span class="r">${fmt(h)}</span>`]);
+  const mostrar = n <= 40 ? [...Array(n + 1).keys()] : [0, 1, 2, 3, 4, 5, -1, n - 3, n - 2, n - 1, n];
+  const suma = ys.reduce((s, y, i) => s + c[i] * y, 0);
+  hm += `<div class="tw"><table><thead><tr><th>i</th><th>tᵢ = a + i·h</th><th>f(tᵢ)</th><th>coef.</th><th>coef.·f(tᵢ)</th></tr></thead><tbody>` +
+    mostrar.map(i => i < 0 ? `<tr><td class="dim" colspan="5" style="text-align:center">⋮</td></tr>` :
+      `<tr><td>${i}</td><td>${fmt(ts[i])}</td><td>${fx(ys[i])}</td><td>${c[i]}</td><td>${fx(c[i] * ys[i])}</td></tr>`).join("") +
+    `<tr class="hit"><td class="l" colspan="4">Suma ponderada</td><td>${fx(suma)}</td></tr></tbody></table></div>`;
+  const imp = [], parI = [];
+  for(let i = 1; i < n; i++) (i % 2 ? imp : parI).push(i);
+  const sImp = imp.reduce((s, i) => s + ys[i], 0), sPar = parI.reduce((s, i) => s + ys[i], 0);
+  const I = suma * h / 3;
+  const lista_ = (ids, nom) => ids.length <= 6 ? ids.map(i => fx(ys[i])).join(" + ") : `suma de los ${ids.length} ${nom}`;
+  const lin = [`I ≈ (h/3)·[f(t₀) + 4·Σ f(t impares) + 2·Σ f(t pares) + f(t${sub(n)})]`,
+    `Σ impares (i = ${imp.length <= 6 ? imp.join(", ") : "1, 3, …, " + (n - 1)}) = ${lista_(imp, "impares")} = <span class="r">${fx(sImp)}</span>`];
+  if(parI.length) lin.push(`Σ pares (i = ${parI.length <= 6 ? parI.join(", ") : "2, 4, …, " + (n - 2)}) = ${lista_(parI, "pares")} = <span class="r">${fx(sPar)}</span>`);
+  lin.push(`I ≈ (${fmt(h)}/3)·[${fx(ys[0])} + 4(${fx(sImp)})${parI.length ? ` + 2(${fx(sPar)})` : ""} + ${fx(ys[n])}]`,
+    `  = (${fmt(h)}/3)·[${fx(ys[0])} + ${fx(4 * sImp)}${parI.length ? ` + ${fx(2 * sPar)}` : ""} + ${fx(ys[n])}]`,
+    `  = (${fmt(h)}/3)·(${fx(suma)}) = <span class="r">${fx(I)}</span>`);
+  hm += lineasHTML(lin);
+  const ea = Math.abs(D.ref - I), er = ea / Math.abs(D.ref) * 100;
+  hm += `<div class="res"><span class="v">I<sub>Simpson</sub> ≈ ${U(fx(I))}</span>
+    <span class="v"><small>${d.exDado ? "exacto" : "referencia"} ${fx(D.ref)} · error ${fx(ea)} (${fx(er, 4)} %)</small></span></div>
+    <p class="msg mini" style="margin:0">Trapecio con el mismo n, para comparar: ${fx(trap(f, a, b, n))} (error ${fx(Math.abs(D.ref - trap(f, a, b, n)))}).</p>`;
+  $("oMalla").innerHTML = hm;
+  D.ts = ts; D.ys = ys; D.I = I;
+
+  // ---------- M y cota ----------
+  let g4 = null; const g4txt = $("id4").value.trim();
+  if(g4txt){ try{ g4 = compilarT(g4txt); } catch(e){ g4 = null; } }
+  $("id4").classList.toggle("bad", !!g4txt && !g4);
+  const G = g4 || (t => deriv4(f, t, a, b));
+  let Mc = 0, tM = a;
+  for(let k = 0; k <= 6000; k++){ const t = a + (b - a) * k / 6000, v = Math.abs(G(t)); if(isFinite(v) && v > Mc){ Mc = v; tM = t; } }
+  const Mtxt = $("iM").value.trim(), Md = Mtxt ? num(Mtxt) : NaN;
+  $("iM").classList.toggle("bad", !!Mtxt && !(Md >= 0));
+  const cotaDe = (M, hh) => (b - a) * Math.pow(hh, 4) / 180 * M;
+  D.M = {Mc, Md: Md >= 0 ? Md : null};
+
+  // ---------- convergencia ----------
+  const ns = lista($("ins").value).map(Math.round).filter(v => v >= 2 && v <= 1000000);
+  const impares = ns.filter(v => v % 2);
+  const filas = []; let prev = null;
+  ns.filter(v => v % 2 === 0).forEach(k => {
+    const v = simpson(f, a, b, k), e = Math.abs(D.ref - v), hh = (b - a) / k;
+    filas.push({k, h: hh, v, e, cd: D.M.Md !== null ? cotaDe(D.M.Md, hh) : null, cc: cotaDe(Mc, hh),
+                p: prev && e && prev.e ? Math.log(prev.e / e) / Math.log(k / prev.k) : null});
+    prev = {k, e};
+  });
+  D.conv = filas;
+  const conMd = D.M.Md !== null;
+  $("oConv").innerHTML = (impares.length ? `<p class="msg mini err" style="margin:0">Se omiten los n impares (${impares.join(", ")}): Simpson 1/3 los rechaza.</p>` : "") +
+    (filas.length ? `<div class="tw"><table><thead><tr><th>n</th><th>h</th><th>I<sub>Simpson</sub></th>${conMd ? `<th>cota |Eₜ| (M = ${dec(D.M.Md)})</th>` : ""}<th>cota |Eₜ| (M = ${fx(Mc, 4)})</th><th>error real</th><th>orden observado</th></tr></thead><tbody>` +
+    filas.map(r => `<tr${r.k === n ? ' class="hit"' : ""}><td>${r.k}</td><td>${fmt(r.h)}</td><td>${fx(r.v)}</td>${conMd ? `<td>${dec(r.cd, 6)}</td>` : ""}<td>${dec(r.cc, 6)}</td><td>${dec(r.e, 6)}</td><td>${r.p ? fx(r.p, 3) : "—"}</td></tr>`).join("") +
+    `</tbody></table></div>
+    <p class="msg mini" style="margin:0">Simpson 1/3 es de <b>orden h⁴</b>: al duplicar n, el error se divide entre unos 2⁴ = 16. El orden observado debería acercarse a 4.</p>` : `<p class="msg">Escribe uno o más valores pares de n.</p>`);
+
+  // ---------- tarjeta de la cota ----------
+  const tol = num($("itol").value);
+  $("itol").classList.toggle("bad", !(tol > 0));
+  const nNec = M => { if(!(tol > 0) || !M) return null; const hMax = Math.pow(180 * tol / ((b - a) * M), 0.25); let k = Math.ceil((b - a) / hMax); if(k % 2) k++; return Math.max(2, k); };
+  const lc = [`|Eₜ| ≤ (b − a)·h⁴ / 180 · M,   M = máx |f⁽⁴⁾(t)| en [${fmt(a)}, ${fmt(b)}]`];
+  if(conMd){
+    const cd = cotaDe(Md, h);
+    lc.push(`<span class="c">Con la M del enunciado:</span>`,
+      `|Eₜ| ≤ ${fmt(b - a)}·(${fmt(h)})⁴ / 180 · ${dec(Md)} = <span class="r">${dec(cd, 6)}</span>   ${ea <= cd * (1 + 1e-9) ? "≥ error real ✓" : `<span class="no">&lt; error real ${fx(ea)}: esta M no puede ser el máximo de |f⁽⁴⁾|</span>`}`);
+  }
+  lc.push(`<span class="c">Con la M calculada${g4 ? "" : " (cuarta derivada numérica)"}:</span>`,
+    g4 ? `f⁽⁴⁾(t) = ${esc(g4txt)}` : `<span class="ojo">f⁽⁴⁾(t) no se escribió: se estima con diferencias finitas de cinco puntos.</span>`,
+    `M = máx |f⁽⁴⁾(t)| = |f⁽⁴⁾(${fx(tM, 4)})| = <span class="r">${fx(Mc)}</span>`,
+    `|Eₜ| ≤ ${fmt(b - a)}·(${fmt(h)})⁴ / 180 · ${fx(Mc)} = <span class="r">${dec(cotaDe(Mc, h), 6)}</span>   ${ea <= cotaDe(Mc, h) * (1 + 1e-9) ? "≥ error real ✓" : '<span class="no">&lt; error real</span>'}`,
+    `error real = |${fx(D.ref)} − ${fx(I)}| = ${fx(ea)}`);
+  const nC = nNec(Mc);
+  if(nC) lc.push(`Para |Eₜ| ≤ ${dec(tol)}:  h ≤ [180·tol / ((b − a)·M)]^(1/4) = ${fx(Math.pow(180 * tol / ((b - a) * Mc), 0.25), 4)}  →  <span class="r">n = ${nC}</span> (el par siguiente a (b − a)/h)`);
+  $("oCota").innerHTML = `<div class="formula">Eₜ = −(b − a)·h⁴/180 · f⁽⁴⁾(ξ)</div>` + lineasHTML(lc) +
+    `<div class="res">${conMd ? `<span class="v">cota (M = ${dec(Md)}): ${dec(cotaDe(Md, h), 6)}</span>` : ""}<span class="v">cota (M = ${fx(Mc, 4)}): ${dec(cotaDe(Mc, h), 6)}</span>${nC ? `<span class="v">n mínimo: ${nC}</span>` : ""}</div>`;
+
+  graficar(); graficarConv();
+}
+function trap(f, a, b, n){ const h = (b - a) / n; let s = (f(a) + f(b)) / 2; for(let i = 1; i < n; i++) s += f(a + i * h); return s * h; }
+
+/* ------------------------- gráficas ------------------------- */
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function lienzo(id){
+  const cv = $(id); const W = cv.clientWidth, H = cv.clientHeight; if(!W) return null;
+  const dpr = window.devicePixelRatio || 1; cv.width = W * dpr; cv.height = H * dpr;
+  const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  g.font = "11px JetBrains Mono, monospace"; return {g, W, H};
+}
+const ticks = (a, b, n) => { const st = Math.pow(10, Math.floor(Math.log10((b - a) / n))); const m = [1, 2, 5, 10].find(m => (b - a) / (st * m) <= n) * st; const r = []; for(let v = Math.ceil(a / m) * m; v <= b + 1e-12; v += m) r.push(+v.toFixed(10)); return r; };
+/* parábola por (x0,y0), (x1,y1), (x2,y2) */
+const parab = (x0, y0, x1, y1, x2, y2) => t => y0 * (t - x1) * (t - x2) / ((x0 - x1) * (x0 - x2)) + y1 * (t - x0) * (t - x2) / ((x1 - x0) * (x1 - x2)) + y2 * (t - x0) * (t - x1) / ((x2 - x0) * (x2 - x1));
+function graficar(hover){
+  const c = lienzo("plot"); if(!c || !D.ts) { if(c) $("leyenda").innerHTML = ""; return; }
+  const {g, W, H} = c;
+  const {f, a, b, ts, ys} = D, n = ts.length - 1;
+  const N = 500, curva = [...Array(N + 1)].map((_, k) => { const t = a + (b - a) * k / N; return [t, f(t)]; });
+  // parábolas por tramos de dos subintervalos
+  const arcos = [];
+  for(let j = 0; j + 2 <= n; j += 2){
+    const q = parab(ts[j], ys[j], ts[j + 1], ys[j + 1], ts[j + 2], ys[j + 2]), pts = [];
+    for(let k = 0; k <= 40; k++){ const t = ts[j] + (ts[j + 2] - ts[j]) * k / 40; pts.push([t, q(t)]); }
+    arcos.push(pts);
+  }
+  const vals = [...curva.map(p => p[1]), ...arcos.flat().map(p => p[1])].filter(isFinite);
+  let y0 = Math.min(0, ...vals), y1 = Math.max(0, ...vals); const pad = (y1 - y0) * .08 || 1; y1 += pad; if(y0 < 0) y0 -= pad;
+  const L = 46, R = 14, T = 12, B = 28;
+  const X = t => L + (t - a) / (b - a) * (W - L - R), Y = v => T + (y1 - v) / (y1 - y0) * (H - T - B);
+  const ink3 = css("--ink-3"), line = css("--line"), brand = css("--brand"), amber = css("--m4"), ink = css("--ink");
+  g.strokeStyle = line; g.fillStyle = ink3; g.lineWidth = 1;
+  ticks(a, b, 8).forEach(v => { g.beginPath(); g.moveTo(X(v), T); g.lineTo(X(v), H - B); g.stroke(); g.fillText(dec(v, 3), X(v) - 8, H - 9); });
+  ticks(y0, y1, 6).forEach(v => { g.beginPath(); g.moveTo(L, Y(v)); g.lineTo(W - R, Y(v)); g.stroke(); g.fillText(dec(v, 3), 4, Y(v) + 4); });
+  // área bajo las parábolas
+  g.fillStyle = amber; g.globalAlpha = .2; g.beginPath(); g.moveTo(X(a), Y(0));
+  arcos.forEach(pts => pts.forEach(([t, v]) => g.lineTo(X(t), Y(v)))); g.lineTo(X(b), Y(0)); g.closePath(); g.fill(); g.globalAlpha = 1;
+  g.strokeStyle = amber; g.lineWidth = 1.4; g.setLineDash([5, 3]);
+  arcos.forEach(pts => { g.beginPath(); pts.forEach(([t, v], k) => k ? g.lineTo(X(t), Y(v)) : g.moveTo(X(t), Y(v))); g.stroke(); });
+  g.setLineDash([]);
+  if(n <= 80) for(let j = 0; j <= n; j += 2){ g.beginPath(); g.moveTo(X(ts[j]), Y(0)); g.lineTo(X(ts[j]), Y(ys[j])); g.stroke(); }
+  g.strokeStyle = brand; g.lineWidth = 2.2; g.beginPath(); curva.forEach(([t, v], k) => k ? g.lineTo(X(t), Y(v)) : g.moveTo(X(t), Y(v))); g.stroke();
+  g.strokeStyle = ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(L, Y(0)); g.lineTo(W - R, Y(0)); g.stroke();
+  if(n <= 80) ts.forEach((t, i) => { g.beginPath(); g.arc(X(t), Y(ys[i]), i % 2 ? 4.5 : 4, 0, 7); g.fillStyle = i % 2 ? amber : ink; g.fill(); });
+  if(hover !== undefined){
+    const t = a + (hover - L) / (W - L - R) * (b - a);
+    if(t >= a && t <= b){ const v = f(t);
+      g.strokeStyle = ink3; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(hover, T); g.lineTo(hover, H - B); g.stroke(); g.setLineDash([]);
+      const txt = `t = ${dec(t, 3)} · f = ${dec(v, 4)}`, w = g.measureText(txt).width + 12, bx = Math.min(hover + 8, W - R - w);
+      g.fillStyle = css("--card"); g.fillRect(bx, T + 4, w, 20); g.fillStyle = ink; g.fillText(txt, bx + 6, T + 18); }
+  }
+  $("leyenda").innerHTML = `<span><span class="swatch" style="background:${brand}"></span>f(t)</span>
+    <span><span class="swatch" style="background:${amber}"></span>${n / 2} parábola${n > 2 ? "s" : ""} (n = ${n}) · área ${dec(D.I, 4)}</span>
+    <span><span class="dot" style="background:${ink}"></span>nodos pares (coef. 2)</span>
+    <span><span class="dot" style="background:${amber}"></span>nodos impares (coef. 4)</span>`;
+}
+function graficarConv(){
+  const fil = (D.conv || []).filter(r => r.e > 0); const c = lienzo("plotc"); if(!c) return; const {g, W, H} = c;
+  if(fil.length < 1) return;
+  const lx = fil.map(r => Math.log10(r.k)), ly = fil.map(r => Math.log10(r.e)), lc = fil.map(r => Math.log10(r.cc));
+  let x0 = Math.floor(Math.min(...lx)), x1 = Math.ceil(Math.max(...lx)), yA = Math.floor(Math.min(...ly, ...lc)), yB = Math.ceil(Math.max(...ly, ...lc));
+  if(x0 === x1) x1++; if(yA === yB) yB++;
+  const L = 52, R = 14, T = 12, B = 28;
+  const X = v => L + (v - x0) / (x1 - x0) * (W - L - R), Y = v => T + (yB - v) / (yB - yA) * (H - T - B);
+  const ink3 = css("--ink-3"), line = css("--line"), brand = css("--brand"), amber = css("--m4"), ink = css("--ink");
+  g.strokeStyle = line; g.fillStyle = ink3; g.lineWidth = 1;
+  for(let v = x0; v <= x1; v++){ g.beginPath(); g.moveTo(X(v), T); g.lineTo(X(v), H - B); g.stroke(); g.fillText("10" + sup(v), X(v) - 8, H - 9); }
+  for(let v = yA; v <= yB; v++){ g.beginPath(); g.moveTo(L, Y(v)); g.lineTo(W - R, Y(v)); g.stroke(); g.fillText("10" + sup(v), 6, Y(v) + 4); }
+  g.strokeStyle = amber; g.setLineDash([5, 4]); g.lineWidth = 1.6; g.beginPath(); fil.forEach((r, i) => i ? g.lineTo(X(lx[i]), Y(lc[i])) : g.moveTo(X(lx[i]), Y(lc[i]))); g.stroke(); g.setLineDash([]);
+  g.strokeStyle = brand; g.lineWidth = 2.2; g.beginPath(); fil.forEach((r, i) => i ? g.lineTo(X(lx[i]), Y(ly[i])) : g.moveTo(X(lx[i]), Y(ly[i]))); g.stroke();
+  fil.forEach((r, i) => { g.beginPath(); g.arc(X(lx[i]), Y(ly[i]), 4.5, 0, 7); g.fillStyle = brand; g.fill();
+    const tx = `n=${r.k}`, w = g.measureText(tx).width;
+    g.fillStyle = ink; g.fillText(tx, X(lx[i]) + 7 + w > W - R ? X(lx[i]) - w - 7 : X(lx[i]) + 7, Y(ly[i]) + 14); });
+  g.fillStyle = ink3; g.fillText("azul: error real · ámbar: cota con la M calculada (pendiente −4)", L + 6, H - B - 8);
+}
+
+/* ------------------------- vistas ------------------------- */
+function ir(v, sec){
+  VISTA = v;
+  document.querySelectorAll("main > section").forEach(s => s.hidden = (s.id !== "v-" + v));
+  document.querySelectorAll(".nav[data-view]").forEach(bt => bt.setAttribute("aria-current", String(bt.dataset.view === v && (!bt.dataset.sec || bt.dataset.sec === (sec || "cDatos")))));
+  const sel = $("tbsel"); if(sel) sel.value = v === "int" ? "int:" + (["cConv", "cCota"].includes(sec) ? sec : "cDatos") : v + ":";
+  if(v === "int"){ calc(); if(sec && sec !== "cDatos") $(sec).scrollIntoView({block:"start"}); else window.scrollTo({top:0}); }
+  else window.scrollTo({top:0});
+  if(v === "s13") pintarS13();
+  if(v === "formulas" && !$("formBody").innerHTML.trim()) pintarFormulas();
+  try{ localStorage.setItem("s13vista", v); }catch(e){}
+}
+function tema(){
+  const actual = document.documentElement.getAttribute("data-theme");
+  const oscuro = matchMedia("(prefers-color-scheme: dark)").matches;
+  const nuevo = actual ? (actual === "dark" ? "light" : "dark") : (oscuro ? "light" : "dark");
+  document.documentElement.setAttribute("data-theme", nuevo);
+  try{ localStorage.setItem("s13tema", nuevo); }catch(e){}
+  requestAnimationFrame(() => { graficar(); graficarConv(); });
+}
+try{ const t = localStorage.getItem("s13tema"); if(t) document.documentElement.setAttribute("data-theme", t); }catch(e){}
+
+function pintarS13(){
+  const a = Math.PI / 6;
+  const P = t => 10 + 5 * t * Math.sin(a * t) + Math.exp(0.2 * t);
+  const P4 = t => 5 * (Math.pow(a, 4) * t * Math.sin(a * t) - 4 * Math.pow(a, 3) * Math.cos(a * t)) + 0.0016 * Math.exp(0.2 * t);
+  const ex = 60 + 180 / Math.PI + (Math.exp(1.2) - 1) / 0.2;
+  let M = 0, tM = 0; for(let k = 0; k <= 60000; k++){ const t = 6 * k / 60000, v = Math.abs(P4(t)); if(v > M){ M = v; tM = t; } }
+  const I6 = simpson(P, 0, 6, 6), c = coefSimpson(6);
+  const card = (k, t, body) => `<div class="card"><h2><span class="step">${k}</span> ${t}</h2><div class="body">${body}</div></div>`;
+  let h = card(1, "El problema", `<p class="msg" style="margin:0">Un centro de datos registra la potencia consumida por sus servidores durante 6 horas de carga crítica:</p>
+    <div class="formula">P(t) = 10 + 5t·sen(πt/6) + e^(0.2t)   [kW],   t en horas</div>
+    <p class="msg" style="margin:0">La energía total es E = ∫₀⁶ P(t) dt [kWh]. Se pide aproximarla con Simpson 1/3 compuesto (n = 6), acotar el error y programar la regla con validación de n par.</p>`);
+  h += card(2, "Parte 1 · a mano, n = 6", lineasHTML(["h = (6 − 0)/6 = 1 h"]) +
+    `<div class="tw"><table><thead><tr><th>i</th><th>tᵢ</th><th>5tᵢ·sen(πtᵢ/6)</th><th>e^(0.2tᵢ)</th><th>P(tᵢ)</th><th>coef.</th></tr></thead><tbody>` +
+    [0, 1, 2, 3, 4, 5, 6].map(t => `<tr><td>${t}</td><td>${t}</td><td>${fx(5 * t * Math.sin(a * t) + 0)}</td><td>${fx(Math.exp(0.2 * t))}</td><td>${fx(P(t))}</td><td>${c[t]}</td></tr>`).join("") +
+    `</tbody></table></div>` + lineasHTML([
+      `Σ impares = P(1) + P(3) + P(5) = ${fx(P(1) + P(3) + P(5))}`,
+      `Σ pares = P(2) + P(4) = ${fx(P(2) + P(4))}`,
+      `I ≈ (1/3)·[${fx(P(0))} + 4(${fx(P(1) + P(3) + P(5))}) + 2(${fx(P(2) + P(4))}) + ${fx(P(6))}]`,
+      `  = (1/3)·(${fx(I6 * 3)}) = <span class="r">${fx(I6)} kWh</span>`,
+      `Exacto: E = 60 + 180/π + (e^1.2 − 1)/0.2 = ${fx(ex)} kWh  ·  error real = ${fx(Math.abs(ex - I6))} kWh`]) +
+    `<div class="res"><span class="v">E ≈ ${fx(I6, 4)} kWh (n = 6)</span><span class="v"><small>exacto ${fx(ex, 4)} kWh</small></span></div>`);
+  h += card(3, "Cota del error", lineasHTML([
+      "|Eₜ| ≤ (b − a)·h⁴/180 · M",
+      "Con la M de la guía (0.45): |Eₜ| ≤ 6·1⁴/180 · 0.45 = <span class='r'>0.015 kWh</span>",
+      `<span class="no">Pero el error real (${fx(Math.abs(ex - I6))}) es mayor que 0.015: M = 0.45 no puede ser el máximo de |P⁽⁴⁾|.</span>`,
+      "P⁽⁴⁾(t) = 5·[(π/6)⁴·t·sen(πt/6) − 4(π/6)³·cos(πt/6)] + 0.0016·e^(0.2t)",
+      `P⁽⁴⁾(0) = −20(π/6)³ + 0.0016 = ${fx(P4(0))}  →  ya |P⁽⁴⁾(0)| ≈ 2.87 > 0.45`,
+      `máx |P⁽⁴⁾| en [0, 6] = |P⁽⁴⁾(${fx(tM, 2)})| = <span class="r">${fx(M)}</span>`,
+      `Con esa M: |Eₜ| ≤ 6/180 · ${fx(M, 4)} = <span class="r">${fx(6 / 180 * M)} kWh</span> ≥ ${fx(Math.abs(ex - I6))} ✓`]) +
+    `<div class="row"><button class="btn" onclick="ejemplo(0)">Abrir en la herramienta →</button><button class="btn sec" onclick="ir('int','cConv')">Ver la convergencia →</button></div>`);
+  $("s13body").innerHTML = h;
+}
+function pintarFormulas(){
+  const F = [
+    {t:"Simpson 1/3 simple", f:["∫ₐᵇ f(x) dx ≈ (h/3)·[f(x₀) + 4f(x₁) + f(x₂)],   h = (b − a)/2"], n:"Cambia la recta del trapecio por la parábola que pasa por tres puntos."},
+    {t:"Simpson 1/3 compuesto", f:["h = (b − a) / n,   n par", "∫ₐᵇ f(x) dx ≈ (h/3)·[f(x₀) + 4·Σ impares f(xᵢ) + 2·Σ pares f(xᵢ) + f(xₙ)]", "coeficientes: 1, 4, 2, 4, 2, …, 2, 4, 1"],
+     n:"n tiene que ser par porque cada parábola usa dos subintervalos. Los impares (centros de parábola) pesan 4; los pares interiores (donde se juntan dos parábolas) pesan 2."},
+    {t:"Error de Simpson 1/3 compuesto", f:["Eₜ = −(b − a)·h⁴/180 · f⁽⁴⁾(ξ),   ξ ∈ [a, b]", "|Eₜ| ≤ (b − a)·h⁴/180 · M,   M = máx |f⁽⁴⁾(x)|", "h ≤ [180·tol / ((b − a)·M)]^(1/4)"],
+     n:"Es de orden h⁴: al duplicar n el error se divide entre ~16. Integra exactamente cualquier polinomio de grado ≤ 3 (su cuarta derivada es 0)."},
+    {t:"Comparación con el trapecio", f:["Trapecio: |E| ≤ (b − a)·h²/12 · máx|f''|   (orden h²)", "Simpson 1/3: |E| ≤ (b − a)·h⁴/180 · máx|f⁽⁴⁾|   (orden h⁴)"], n:"Con el mismo número de evaluaciones de f, Simpson suele ser mucho más exacto."},
+  ];
+  $("formBody").innerHTML = F.map(e => `<div class="card"><h2>${e.t}</h2><div class="body" style="gap:10px">${e.f.map(x => `<div class="formula">${x}</div>`).join("")}${e.n ? `<p class="msg mini" style="margin:0">${e.n}</p>` : ""}</div></div>`).join("");
+}
+
+/* ------------------------- arranque ------------------------- */
+const lineasHTML = ls => `<div class="lineas">${ls.map(l => `<div>${l}</div>`).join("")}</div>`;
+$("ejemplos").innerHTML = `<span class="msg" style="align-self:center">Ejemplos:</span>` + EJ.map((e, k) => `<button class="btn chip" onclick="ejemplo(${k})">${e.n}</button>`).join("");
+$("id4").value = EJ[0].d4;
+window.addEventListener("resize", debounce(() => { graficar(); graficarConv(); }, 120));
+$("plot").addEventListener("mousemove", e => { const r = e.target.getBoundingClientRect(); graficar(e.clientX - r.left); });
+$("plot").addEventListener("mouseleave", () => graficar());
+(() => { let v = "int"; try{ v = localStorage.getItem("s13vista") || "int"; }catch(e){} ir(["int", "s13", "formulas"].includes(v) ? v : "int"); })();
+
+</script>
+</body>
+</html>
